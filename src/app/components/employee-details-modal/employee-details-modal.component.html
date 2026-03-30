@@ -1,0 +1,104 @@
+@if (isOpen()) {
+  @if (selectedEmployee(); as employee) {
+    <div class="fixed inset-0 z-[85] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4" (click)="onBackdropClick($event)">
+      <div class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-100 overflow-hidden">
+        <div class="flex items-center justify-between px-8 py-6 border-b border-slate-100">
+          <div>
+            <h2 class="text-2xl font-extrabold text-blue-900 font-manrope">Employee Details</h2>
+            <p class="text-sm text-slate-500 mt-1">Review and update profile details for {{ employee.fullName }}.</p>
+          </div>
+          <button type="button" class="w-10 h-10 rounded-full text-slate-500 hover:bg-slate-100 transition-colors" (click)="close()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <form class="px-8 py-6 grid grid-cols-1 md:grid-cols-2 gap-5" (ngSubmit)="save()">
+          @if (!canEdit()) {
+            <p class="md:col-span-2 text-sm text-slate-500">You can view details, but only admin users can save changes.</p>
+          }
+
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Job Number</span>
+            <input name="jobFilter" [ngModel]="jobFilterText()" (ngModelChange)="onJobFilterTextChange($event)" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="Filter jobs by number or title" type="text">
+            <select name="jobNumber" [(ngModel)]="formData.jobNumber" (ngModelChange)="onJobNumberChange($event)" required class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+              <option value="" disabled>{{ isLoadingJobs() ? 'Loading jobs...' : 'Select a job...' }}</option>
+              <option *ngFor="let job of filteredJobs()" [value]="job.job_number">{{ job.job_number }} - {{ job.job_title }}</option>
+            </select>
+            <span *ngIf="!isLoadingJobs() && allJobs().length > 0 && filteredJobs().length === 0" class="text-xs text-slate-400">No matching jobs.</span>
+          </label>
+
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Full Name</span>
+            <input name="fullName" [(ngModel)]="formData.fullName" required class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="e.g. Jamie Brooks" type="text">
+          </label>
+
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Job Title</span>
+            <input name="jobTitle" [(ngModel)]="formData.jobTitle" required readonly class="h-11 rounded-xl border border-slate-200 px-4 text-sm bg-slate-50 text-slate-500 cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="Auto-populated from job selection" type="text">
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Team</span>
+            <select name="team" [ngModel]="teamSelectValue()" (ngModelChange)="onTeamSelectionChange($event)" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+              <option *ngFor="let option of teamOptions()" [ngValue]="option.value">{{ option.label }}</option>
+              <option [ngValue]="customTeamOptionValue">Custom team...</option>
+            </select>
+          </label>
+
+          @if (isCustomTeam()) {
+            <label class="flex flex-col gap-2 md:col-span-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Custom Team</span>
+              <input name="customTeam" [ngModel]="customTeamText()" (ngModelChange)="onCustomTeamTextChange($event)" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="Enter team name" type="text">
+            </label>
+          }
+
+          <label class="flex flex-col gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Status</span>
+            <select name="status" [(ngModel)]="formData.status" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+              <option value="active">Active</option>
+              <option value="pipeline">Pipeline</option>
+            </select>
+          </label>
+
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Location</span>
+            <select name="location" [ngModel]="locationSelectValue()" (ngModelChange)="onLocationSelectionChange($event)" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+              <option *ngFor="let option of locationOptions()" [ngValue]="option.value">{{ option.label }}</option>
+              <option [ngValue]="customLocationOptionValue">Custom location...</option>
+            </select>
+          </label>
+
+          @if (isCustomLocation()) {
+            <label class="flex flex-col gap-2 md:col-span-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Custom Location</span>
+              <input name="customLocation" [ngModel]="customLocationText()" (ngModelChange)="onCustomLocationTextChange($event)" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="Enter location" type="text">
+            </label>
+          }
+
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Avatar URL</span>
+            <input name="avatarUrl" [(ngModel)]="formData.avatarUrl" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="https://..." type="url">
+          </label>
+
+          @if (saveErrorMessage()) {
+            <p class="md:col-span-2 text-sm text-red-600">{{ saveErrorMessage() }}</p>
+          }
+
+          <div class="md:col-span-2 flex items-center justify-end gap-3 pt-2">
+            @if (canEdit()) {
+              <button type="button" class="h-11 px-6 rounded-full bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" (click)="removeEmployee()" [disabled]="isSaving() || isDeleting()">
+                {{ isDeleting() ? 'Removing...' : 'Remove Employee' }}
+              </button>
+            }
+            <button type="button" class="h-11 px-6 rounded-full border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" (click)="close()" [disabled]="isSaving() || isDeleting()">
+              Cancel
+            </button>
+            <button type="submit" class="h-11 px-6 rounded-full bg-primary text-white font-semibold hover:bg-primary-container transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary" [disabled]="!canEdit() || isSaving() || isDeleting()">
+              {{ isSaving() ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+}

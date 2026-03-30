@@ -1,0 +1,67 @@
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-slate-100 dark:bg-slate-900 font-manrope text-base font-medium z-40 border-r border-slate-200/50">
+  <div class="flex flex-col gap-2 py-8 pr-4 pl-6">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary shadow-lg shadow-primary/20">
+        <span class="material-symbols-outlined">corporate_fare</span>
+      </div>
+      <div>
+        <h2 class="font-manrope font-extrabold text-blue-900 dark:text-blue-100 leading-none">My People</h2>
+        <p class="text-[10px] uppercase tracking-widest text-slate-500 mt-1">v1.0</p>
+      </div>
+    </div>
+
+    <nav class="flex flex-col gap-1">
+      <a
+        class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-300 rounded-r-full font-bold pl-6 transition-all duration-300 ease-in-out active:scale-[0.98] hover:bg-white"
+        routerLink="/directory"
+        routerLinkActive="bg-white dark:bg-slate-800 text-blue-800 dark:text-blue-200 shadow-sm"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <span class="material-symbols-outlined">group</span>
+        <span>Directory</span>
+      </a>
+
+      <!--
+      <a
+        class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-300 rounded-r-full font-bold pl-6 transition-all duration-300 ease-in-out active:scale-[0.98] hover:bg-white"
+        routerLink="/my-details"
+        routerLinkActive="bg-white dark:bg-slate-800 text-blue-800 dark:text-blue-200 shadow-sm"
+      >
+        <span class="material-symbols-outlined">group</span>
+        <span>My Details</span>
+      </a>
+      -->
+
+      <a
+        class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-300 rounded-r-full font-bold pl-6 transition-all duration-300 ease-in-out active:scale-[0.98] hover:bg-white"
+        routerLink="/pipeline"
+        routerLinkActive="bg-white dark:bg-slate-800 text-blue-800 dark:text-blue-200 shadow-sm"
+      >
+        <span class="material-symbols-outlined">conversion_path</span>
+        <span>Pipeline</span>
+      </a>
+    </nav>
+
+    <div class="mt-8 px-4">
+      <button
+        (click)="requestAddEmployee()"
+        class="w-full py-3 bg-primary text-on-primary rounded-full font-bold shadow-md hover:bg-primary-container transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
+        type="button"
+        [disabled]="!canAddEmployee()"
+      >
+        Add Employee
+      </button>
+      @if (!canAddEmployee()) {
+        <p class="mt-2 text-xs text-slate-500">Only admin users can add employees.</p>
+      }
+    </div>
+  </div>
+
+  <div class="mt-auto flex flex-col gap-1 py-8 pr-4 pl-6 border-t border-slate-200/50">
+    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-r-full hover:pl-6 transition-all duration-300 ease-in-out active:scale-[0.98]" href="#">
+      <span class="material-symbols-outlined">help</span>
+      <span>Help Center</span>
+    </a>
+   
+  </div>
+</aside>

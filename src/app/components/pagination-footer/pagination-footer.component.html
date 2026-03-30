@@ -1,0 +1,27 @@
+<div class="mt-16 flex items-center justify-between border-t border-slate-200 pt-8">
+  <p class="text-sm text-on-surface-variant">
+    Showing <span class="font-bold text-blue-900">{{ currentPageStart() }}</span> to
+    <span class="font-bold text-blue-900">{{ currentPageEnd() }}</span> of
+    <span class="font-bold text-blue-900">{{ visibleEmployeesCount() }}</span>
+    filtered employees (<span class="font-bold text-blue-900">{{ totalEmployeesCount() }}</span> total)
+  </p>
+  <div class="flex gap-1">
+    <button (click)="previousPage()" [disabled]="currentPage() === 1" class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-slate-100 text-slate-400 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" type="button">
+      <span class="material-symbols-outlined">chevron_left</span>
+    </button>
+
+    <ng-container *ngFor="let item of pageItems()">
+      <button *ngIf="isPageNumber(item); else ellipsis" (click)="setPage(item)" [ngClass]="item === currentPage() ? 'bg-primary text-white font-bold' : 'bg-white text-slate-600 hover:bg-slate-50 font-medium'" class="w-10 h-10 flex items-center justify-center rounded-full text-sm transition-colors" type="button">
+        {{ item }}
+      </button>
+
+      <ng-template #ellipsis>
+        <span class="w-10 h-10 flex items-center justify-center text-slate-400">...</span>
+      </ng-template>
+    </ng-container>
+
+    <button (click)="nextPage()" [disabled]="currentPage() === totalPages()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-slate-100 text-slate-400 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" type="button">
+      <span class="material-symbols-outlined">chevron_right</span>
+    </button>
+  </div>
+</div>

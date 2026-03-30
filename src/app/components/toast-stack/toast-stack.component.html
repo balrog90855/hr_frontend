@@ -1,0 +1,31 @@
+@if (toasts().length > 0) {
+  <div class="fixed right-6 top-24 z-[75] flex w-full max-w-sm flex-col gap-3">
+    @for (toast of toasts(); track toast.id) {
+      <div
+        [class]="
+          toast.variant === 'success'
+            ? 'rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 shadow-lg'
+            : 'rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900 shadow-lg'
+        "
+      >
+        <div class="flex items-start gap-3">
+          <span
+            class="material-symbols-outlined"
+            [class]="toast.variant === 'success' ? 'text-emerald-700' : 'text-rose-700'"
+          >
+            {{ toast.variant === 'success' ? 'check_circle' : 'error' }}
+          </span>
+          <p class="flex-1">{{ toast.message }}</p>
+          <button
+            type="button"
+            [class]="toast.variant === 'success' ? 'text-emerald-700 hover:text-emerald-900' : 'text-rose-700 hover:text-rose-900'"
+            aria-label="Dismiss notification"
+            (click)="dismiss(toast.id)"
+          >
+            <span class="material-symbols-outlined text-base">close</span>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+}

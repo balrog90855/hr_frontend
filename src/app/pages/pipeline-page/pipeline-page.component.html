@@ -1,0 +1,209 @@
+<div class="mb-12">
+  <h1 class="text-5xl font-extrabold font-manrope text-blue-900 tracking-tighter mb-2">Pipeline</h1>
+  <p class="text-lg text-on-surface-variant font-body max-w-2xl">Track open roles and onboarding candidates who are still training or waiting to join a team.</p>
+</div>
+
+<div class="flex flex-col gap-8 mb-10">
+  <div class="flex items-center justify-between">
+    <div class="relative flex items-center gap-3">
+      <label class="text-sm font-semibold text-slate-400" for="pipeline-team-filter">Filter by Team:</label>
+      <select (change)="setTeamFilter($any($event.target).value)" class="h-11 px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm min-w-[180px]" id="pipeline-team-filter">
+        <option *ngFor="let option of teamFilterOptions()" [value]="option.value" [selected]="option.value === teamFilter()">{{ option.label }}</option>
+      </select>
+
+      <label class="text-sm font-semibold text-slate-400" for="pipeline-location-filter">Location:</label>
+      <select (change)="setLocationFilter($any($event.target).value)" class="h-11 px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm min-w-[150px]" id="pipeline-location-filter">
+        <option *ngFor="let option of locationFilterOptions()" [value]="option.value" [selected]="option.value === locationFilter()">{{ option.label }}</option>
+      </select>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <span class="text-sm font-semibold text-slate-400">Show:</span>
+      <select (change)="setSectionView($any($event.target).value)" class="bg-transparent border-none text-sm font-bold text-blue-900 focus:ring-0 cursor-pointer">
+        <option *ngFor="let option of sectionViewOptions" [value]="option.value" [selected]="option.value === sectionView()">{{ option.label }}</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+@if (showVacancies()) {
+  <section class="mb-12">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl font-bold text-slate-900">Vacant Positions</h2>
+      <span class="text-sm font-semibold text-slate-500">{{ vacantPositions().length }} roles open</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <article *ngFor="let position of vacantPositions()" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <h3 class="text-lg font-bold text-blue-900">{{ position.title }}</h3>
+          <span [class]="position.vacancyClass + ' px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-full'">{{ position.vacancyLabel }}</span>
+        </div>
+
+        <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
+          <div class="col-span-2">
+            <dt class="text-slate-500">Job Number</dt>
+            <dd class="font-semibold text-slate-900">{{ position.jobNumber }}</dd>
+          </div>
+      
+        </dl>
+      </article>
+    </div>
+  </section>
+}
+
+@if (showPipeline()) {
+  <section>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl font-bold text-slate-900">Onboarding Pipeline</h2>
+      <span class="text-sm font-semibold text-slate-500">{{ pipelinePeople().length }} candidates</span>
+    </div>
+
+    @if (pipelinePeople().length === 0) {
+      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
+        <h3 class="text-lg font-bold text-slate-900">No pipeline candidates</h3>
+        <p class="mt-2 text-sm text-slate-500">The pipeline starts empty until candidate data is added.</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <article
+          *ngFor="let person of pipelinePeople()"
+          class="relative rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-blue-200 hover:bg-blue-50/20"
+        >
+          <span
+            class="absolute top-4 right-4 px-2 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-full"
+            [ngClass]="isAdmin() ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'"
+          >
+            {{ isAdmin() ? 'Editable' : 'View only' }}
+          </span>
+
+          <button
+            class="absolute inset-0 rounded-xl"
+            type="button"
+            [attr.aria-label]="'Open pipeline details for ' + person.fullName"
+            (click)="openPipelinePersonDetails(person.id)"
+          ></button>
+
+          <h3 class="text-lg font-bold text-blue-900">{{ person.fullName }}</h3>
+          <p class="text-sm text-slate-600 mt-1">{{ person.jobTitle }}</p>
+
+          <dl class="mt-4 grid grid-cols-1 gap-2 text-sm">
+            <div class="flex items-center justify-between gap-3">
+              <dt class="text-slate-500">Job Number</dt>
+              <dd class="font-semibold text-slate-900">{{ person.jobNumber }}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <dt class="text-slate-500">Location</dt>
+              <dd class="font-semibold text-slate-900">{{ person.locationLabel }}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <dt class="text-slate-500">Team</dt>
+              <dd class="font-semibold text-slate-900">{{ person.teamLabel }}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <dt class="text-slate-500">Status</dt>
+              <dd class="font-semibold text-slate-900">{{ person.statusLabel }}</dd>
+            </div>
+          </dl>
+        </article>
+      </div>
+    }
+  </section>
+}
+
+@if (isPipelinePersonModalOpen()) {
+  @if (selectedPipelinePerson(); as person) {
+    <div class="fixed inset-0 z-[85] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4" (click)="onPipelineModalBackdropClick($event)">
+      <div class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-100 overflow-hidden">
+        <div class="flex items-center justify-between px-8 py-6 border-b border-slate-100">
+          <div>
+            <h2 class="text-2xl font-extrabold text-blue-900 font-manrope">Pipeline Person Details</h2>
+            <p class="text-sm text-slate-500 mt-1">{{ person.fullName }} currently has status {{ person.status }}.</p>
+          </div>
+          <button type="button" class="w-10 h-10 rounded-full text-slate-500 hover:bg-slate-100 transition-colors" (click)="closePipelinePersonDetails()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <form class="px-8 py-6 grid grid-cols-1 md:grid-cols-2 gap-5" (ngSubmit)="savePipelinePersonDetails()">
+          @if (!isAdmin()) {
+            <p class="md:col-span-2 text-sm text-slate-500">Read-only mode. Only admin users can edit pipeline details.</p>
+          }
+
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Job Number</span>
+            <input name="jobFilter" [ngModel]="jobFilterText()" (ngModelChange)="onJobFilterTextChange($event)" [disabled]="!isAdmin()" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-slate-50" placeholder="Filter jobs by number or title" type="text">
+            <select name="jobNumber" [(ngModel)]="formData.jobNumber" (ngModelChange)="onJobNumberChange($event)" [disabled]="!isAdmin()" required class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-slate-50">
+              <option value="" disabled>{{ jobs().length === 0 ? 'Loading jobs...' : 'Select a job...' }}</option>
+              <option *ngFor="let job of filteredJobs()" [value]="job.job_number">{{ job.job_number }} - {{ job.job_title }}</option>
+            </select>
+            <span *ngIf="jobs().length > 0 && filteredJobs().length === 0" class="text-xs text-slate-400">No matching jobs.</span>
+          </label>
+
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Full Name</span>
+            <input name="fullName" [(ngModel)]="formData.fullName" [disabled]="!isAdmin()" required class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-slate-50" type="text">
+          </label>
+
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Job Title</span>
+            <input name="jobTitle" [(ngModel)]="formData.jobTitle" required readonly class="h-11 rounded-xl border border-slate-200 px-4 text-sm bg-slate-50 text-slate-500 cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="Auto-populated from job selection" type="text">
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Location</span>
+            <select name="location" [ngModel]="locationSelectValue()" (ngModelChange)="onLocationSelectionChange($event)" [disabled]="!isAdmin()" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-slate-50">
+              <option *ngFor="let option of locationOptions()" [ngValue]="option.value">{{ option.label }}</option>
+              <option [ngValue]="customLocationOptionValue">Custom location...</option>
+            </select>
+          </label>
+
+          @if (isCustomLocation()) {
+            <label class="flex flex-col gap-2 md:col-span-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Custom Location</span>
+              <input name="customLocation" [ngModel]="customLocationText()" (ngModelChange)="onCustomLocationTextChange($event)" [disabled]="!isAdmin()" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-slate-50" placeholder="Enter location" type="text">
+            </label>
+          }
+
+          <label class="flex flex-col gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Team</span>
+            <select name="team" [ngModel]="teamSelectValue()" (ngModelChange)="onTeamSelectionChange($event)" [disabled]="!isAdmin()" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-slate-50">
+              <option *ngFor="let option of teamOptions()" [ngValue]="option.value">{{ option.label }}</option>
+              <option [ngValue]="customTeamOptionValue">Custom team...</option>
+            </select>
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Status</span>
+            <select name="status" [(ngModel)]="formData.status" [disabled]="!isAdmin()" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-slate-50">
+              <option value="active">Active</option>
+              <option value="pipeline">Pipeline</option>
+            </select>
+          </label>
+
+          @if (isCustomTeam()) {
+            <label class="flex flex-col gap-2 md:col-span-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Custom Team</span>
+              <input name="customTeam" [ngModel]="customTeamText()" (ngModelChange)="onCustomTeamTextChange($event)" [disabled]="!isAdmin()" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-slate-50" placeholder="Enter team name" type="text">
+            </label>
+          }
+
+          <div class="md:col-span-2 flex items-center justify-end gap-3 pt-2">
+            <button type="button" class="h-11 px-6 rounded-full border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-colors" (click)="closePipelinePersonDetails()">
+              Close
+            </button>
+
+            @if (isAdmin()) {
+              <button type="button" class="h-11 px-6 rounded-full bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" (click)="removePipelinePerson()" [disabled]="isDeletingPipelinePerson()">
+                {{ isDeletingPipelinePerson() ? 'Removing...' : 'Remove Employee' }}
+              </button>
+              <button type="submit" class="h-11 px-6 rounded-full bg-primary text-white font-semibold hover:bg-primary-container transition-colors">
+                Save Changes
+              </button>
+            }
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+}

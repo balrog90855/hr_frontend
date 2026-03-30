@@ -1,0 +1,41 @@
+<div class="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+  <div
+    *ngFor="let employee of employees(); trackBy: trackById"
+    class="relative z-10 group bg-surface-container-lowest p-6 rounded-xl border border-transparent transition-all duration-300 flex flex-col"
+    [ngClass]="{
+      'hover:border-primary/10': canAddEmployee(),
+      'hover:bg-white': canAddEmployee(),
+      'cursor-pointer': canAddEmployee()
+    }"
+  >
+    @if (canAddEmployee()) {
+      <button
+        class="absolute inset-0 z-20 rounded-xl"
+        type="button"
+        [attr.aria-label]="'Open details for ' + employee.fullName"
+        (click)="openEmployeeDetails(employee.id)"
+      ></button>
+    }
+
+    <div class="relative z-10 mb-6">
+      <h3 class="text-xl font-bold text-blue-900 mb-1">{{ employee.fullName }}</h3>
+      <p class="text-xs font-extrabold uppercase tracking-widest text-slate-500">{{ employee.jobNumber }}</p>
+      <p class="text-sm text-on-surface-variant">{{ employee.jobTitle }}</p>
+      <span [class]="employee.teamClass + ' mt-3 inline-flex px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-full'">
+        {{ employee.teamLabel }}
+      </span>
+      <span [class]="employee.locationClass + ' mt-3 inline-flex px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-full'">
+        {{ employee.locationLabel }}
+      </span>
+    </div>
+  </div>
+
+  @if (canAddEmployee()) {
+    <button (click)="requestAddEmployee(); $event.stopPropagation()" class="group border-2 border-dashed border-slate-200 p-6 rounded-xl flex flex-col items-center justify-center gap-4 hover:border-primary/40 hover:bg-white transition-all cursor-pointer min-h-[280px]" type="button">
+      <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-all">
+        <span class="material-symbols-outlined">add</span>
+      </div>
+      <p class="text-sm font-bold text-slate-400 group-hover:text-primary transition-colors">Add New Member</p>
+    </button>
+  }
+</div>
