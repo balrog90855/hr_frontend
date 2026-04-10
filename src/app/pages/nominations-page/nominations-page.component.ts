@@ -66,7 +66,7 @@ export class NominationsPageComponent {
       this.nominatorName.trim().length > 0 &&
       this.nominatorTeam.trim().length > 0 &&
       this.nomineeEmployeeId.length > 0 &&
-      this.nominationText.trim().length > 0 &&
+      this.nominationText.trim().length >= 10 &&
       !this.isSubmitting()
     );
   }
