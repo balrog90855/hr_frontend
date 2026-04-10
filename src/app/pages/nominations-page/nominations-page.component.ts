@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { Nomination } from '../../models/nomination.model';
@@ -150,9 +150,11 @@ export class NominationsPageComponent {
   }
 
   constructor() {
-    if (this.isAdmin()) {
-      this.loadNominations();
-    }
+    effect(() => {
+      if (this.isAdmin()) {
+        this.loadNominations();
+      }
+    }, { allowSignalWrites: true });
   }
 
   loadNominations(): void {
