@@ -1,7 +1,7 @@
 @if (isOpen()) {
   @if (selectedEmployee(); as employee) {
     <div class="fixed inset-0 z-[85] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4" (click)="onBackdropClick($event)">
-      <div class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-100 overflow-hidden">
+      <div class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
         <div class="flex items-center justify-between px-8 py-6 border-b border-slate-100">
           <div>
             <h2 class="text-2xl font-extrabold text-blue-900 font-manrope">Employee Details</h2>
@@ -12,7 +12,7 @@
           </button>
         </div>
 
-        <form class="px-8 py-6 grid grid-cols-1 md:grid-cols-2 gap-5" (ngSubmit)="save()">
+        <form class="px-8 py-6 grid grid-cols-1 md:grid-cols-2 gap-5 flex-1 overflow-y-auto" (ngSubmit)="save()">
           @if (!canEdit()) {
             <p class="md:col-span-2 text-sm text-slate-500">You can view details, but only admin users can save changes.</p>
           }
