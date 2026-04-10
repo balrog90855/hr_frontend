@@ -8,7 +8,7 @@ import {
   getTeamMeta,
   toDisplayLocationLabel
 } from '../../models/employee.model';
-import { EmployeeStoreService } from '../../services/employee-store.service';
+import { AppraisalDueDateFilter, EmployeeStoreService, ViewMode } from '../../services/employee-store.service';
 
 @Component({
   selector: 'app-directory-controls',
@@ -16,47 +16,24 @@ import { EmployeeStoreService } from '../../services/employee-store.service';
   imports: [CommonModule],
   templateUrl: './directory-controls.component.html'
 })
-/**
- * Filter and sort control bar displayed above the employee grid.
- * Reads current filter/sort state from the store and dispatches change actions;
- * the store derives the visible employee list reactively.
- */
 export class DirectoryControlsComponent {
   private readonly employeeStore = inject(EmployeeStoreService);
 
-  // Expose store signals directly so the template can read active values for select bindings.
   readonly teamFilter = this.employeeStore.teamFilter;
   readonly locationFilter = this.employeeStore.locationFilter;
   readonly statusFilter = this.employeeStore.statusFilter;
   readonly sortBy = this.employeeStore.sortBy;
   readonly pageSize = this.employeeStore.pageSize;
+  readonly viewMode = this.employeeStore.viewMode;
+  readonly serviceFilter = this.employeeStore.serviceFilter;
+  readonly gradeFilter = this.employeeStore.gradeFilter;
+  readonly appraisalDueDateFilter = this.employeeStore.appraisalDueDateFilter;
 
   readonly teamOptions = computed<Array<{ value: EmployeeTeamFilter; label: string }>>(() => [
     { value: 'all', label: 'All Teams' },
     ...this.employeeStore.availableTeams().map((team) => ({
       value: team,
       label: getTeamMeta(team).label
-    }))
-  ]);
-
-  readonly sortOptions: Array<{ value: EmployeeSortBy; label: string }> = [
-    { value: EmployeeSortBy.RecentlyAdded, label: 'Recently Added' },
-    { value: EmployeeSortBy.NameAscending, label: 'Name (A-Z)' },
-    { value: EmployeeSortBy.Team, label: 'Department' }
-  ];
-
-  readonly pageSizeOptions: Array<{ value: string; label: string }> = [
-    { value: 'all', label: 'All results' },
-    { value: '6', label: '6 per page' },
-    { value: '12', label: '12 per page' },
-    { value: '24', label: '24 per page' }
-  ];
-
-  readonly statusOptions = computed<Array<{ value: EmployeeStatusFilter; label: string }>>(() => [
-    { value: 'all', label: 'All Statuses' },
-    ...this.employeeStore.availableStatuses().map((status) => ({
-      value: status,
-      label: status === 'active' ? 'Active' : 'Pipeline'
     }))
   ]);
 
@@ -68,18 +45,77 @@ export class DirectoryControlsComponent {
     }))
   ]);
 
+  readonly statusOptions = computed<Array<{ value: EmployeeStatusFilter; label: string }>>(() => [
+    { value: 'all', label: 'All Statuses' },
+    ...this.employeeStore.availableStatuses().map((status) => ({
+      value: status,
+      label: status === 'active' ? 'Active' : 'Pipeline'
+    }))
+  ]);
+
+  readonly serviceOptions = computed<Array<{ value: string; label: string }>>(() => [
+    { value: 'all', label: 'All Services' },
+    ...this.employeeStore.availableServices().map((s) => ({ value: s, label: s }))
+  ]);
+
+  readonly gradeOptions = computed<Array<{ value: string; label: string }>>(() => [
+    { value: 'all', label: 'All Grades' },
+    ...this.employeeStore.availableGrades().map((g) => ({ value: g, label: g }))
+  ]);
+
+  readonly dueDateOptions: Array<{ value: AppraisalDueDateFilter; label: string }> = [
+    { value: 'all', label: 'Any date' },
+    { value: 'overdue', label: 'Overdue' },
+    { value: 'this-month', label: 'This month' },
+    { value: 'this-quarter', label: 'This quarter' },
+    { value: 'this-year', label: 'This year' }
+  ];
+
+  readonly sortOptions = computed<Array<{ value: EmployeeSortBy; label: string }>>(() => {
+    const base = [
+      { value: EmployeeSortBy.RecentlyAdded, label: 'Recently Added' },
+      { value: EmployeeSortBy.NameAscending, label: 'Name (A-Z)' },
+      { value: EmployeeSortBy.Team, label: 'Department' }
+    ];
+    if (this.viewMode() === 'appraisals') {
+      return [...base, { value: EmployeeSortBy.AppraisalDate, label: 'Appraisal Date' }];
+    }
+    return base;
+  });
+
+  readonly pageSizeOptions: Array<{ value: string; label: string }> = [
+    { value: 'all', label: 'All results' },
+    { value: '6', label: '6 per page' },
+    { value: '12', label: '12 per page' },
+    { value: '24', label: '24 per page' }
+  ];
+
+  setViewMode(mode: ViewMode): void {
+    this.employeeStore.setViewMode(mode);
+  }
+
   onTeamFilterChange(value: string): void {
     this.employeeStore.setTeamFilter(value === 'all' ? 'all' : value);
   }
 
   onLocationFilterChange(value: string): void {
-    const nextFilter = value === 'all' ? 'all' : value;
-    this.employeeStore.setLocationFilter(nextFilter);
+    this.employeeStore.setLocationFilter(value === 'all' ? 'all' : value);
   }
 
   onStatusFilterChange(value: string): void {
-    const nextFilter = value as EmployeeStatusFilter;
-    this.employeeStore.setStatusFilter(nextFilter);
+    this.employeeStore.setStatusFilter(value as EmployeeStatusFilter);
+  }
+
+  onServiceFilterChange(value: string): void {
+    this.employeeStore.setServiceFilter(value);
+  }
+
+  onGradeFilterChange(value: string): void {
+    this.employeeStore.setGradeFilter(value);
+  }
+
+  onDueDateFilterChange(value: string): void {
+    this.employeeStore.setAppraisalDueDateFilter(value as AppraisalDueDateFilter);
   }
 
   onSortByChange(value: string): void {
@@ -91,7 +127,6 @@ export class DirectoryControlsComponent {
       this.employeeStore.setPageSize('all');
       return;
     }
-
     this.employeeStore.setPageSize(Number(value));
   }
 }

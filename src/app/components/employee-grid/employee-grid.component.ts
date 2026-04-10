@@ -3,25 +3,21 @@ import { Component, computed, inject } from '@angular/core';
 import { Employee, getTeamMeta, toDisplayLocationLabel } from '../../models/employee.model';
 import { EmployeeStoreService } from '../../services/employee-store.service';
 
-/**
- * View-model used by each card in the grid.
- * Derived from the Employee domain model; holds pre-computed display strings
- * and Tailwind class names so the template stays logic-free.
- */
 interface EmployeeCardViewModel {
   id: string;
   jobNumber: string;
   fullName: string;
   jobTitle: string;
-  /** Human-readable team label (e.g. 'Engineering'). */
   teamLabel: string;
-  /** Tailwind badge colour classes for the team chip. */
   teamClass: string;
-  /** Human-readable location label derived from the backend location value. */
   locationLabel: string;
-  /** Tailwind badge colour classes for the location chip. */
   locationClass: string;
   avatarUrl: string;
+  appraisalDueDate?: string;
+  appraisalLabel: string;
+  appraisalClass: string;
+  service?: string;
+  grade?: string;
 }
 
 @Component({
@@ -30,18 +26,11 @@ interface EmployeeCardViewModel {
   imports: [CommonModule],
   templateUrl: './employee-grid.component.html'
 })
-/**
- * Renders the current page of employees as a responsive card grid.
- * Maps Employee domain objects to EmployeeCardViewModels for the template.
- * Admin users see an extra 'Add New Member' card and can click cards to open
- * the details modal.
- */
 export class EmployeeGridComponent {
   private readonly employeeStore = inject(EmployeeStoreService);
-  /** Controls visibility of edit affordances and the 'Add' card. */
   readonly canAddEmployee = this.employeeStore.canAddEmployee;
+  readonly viewMode = this.employeeStore.viewMode;
 
-  /** Current page of employees projected into view-models. Recomputes on page/filter change. */
   readonly employees = computed(() =>
     this.employeeStore.pagedEmployees().map((employee) => this.toCardViewModel(employee))
   );
@@ -58,11 +47,11 @@ export class EmployeeGridComponent {
     return employee.id;
   }
 
-  /** Projects a raw Employee record into the display-friendly EmployeeCardViewModel. */
   private toCardViewModel(employee: Employee): EmployeeCardViewModel {
     const teamMeta = getTeamMeta(employee.team);
     const locationLabel = toDisplayLocationLabel(employee.location);
     const locationClass = this.toLocationClass(employee.location);
+    const { appraisalLabel, appraisalClass } = this.toAppraisalMeta(employee.appraisalDueDate);
 
     return {
       id: employee.id,
@@ -73,21 +62,33 @@ export class EmployeeGridComponent {
       teamClass: teamMeta.badgeClass,
       locationLabel,
       locationClass,
-      avatarUrl: employee.avatarUrl
+      avatarUrl: employee.avatarUrl,
+      appraisalDueDate: employee.appraisalDueDate,
+      appraisalLabel,
+      appraisalClass,
+      service: employee.service,
+      grade: employee.grade
     };
   }
 
   private toLocationClass(location: string): string {
     const normalized = location.trim().toLowerCase();
-
-    if (normalized === 'north') {
-      return 'bg-cyan-50 text-cyan-700';
-    }
-
-    if (normalized === 'south') {
-      return 'bg-slate-100 text-slate-700';
-    }
-
+    if (normalized === 'north') return 'bg-cyan-50 text-cyan-700';
+    if (normalized === 'south') return 'bg-slate-100 text-slate-700';
     return 'bg-amber-50 text-amber-700';
+  }
+
+  private toAppraisalMeta(dateStr: string | undefined): { appraisalLabel: string; appraisalClass: string } {
+    if (!dateStr) {
+      return { appraisalLabel: 'No date set', appraisalClass: 'bg-slate-100 text-slate-500' };
+    }
+    const due = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diffDays = Math.floor((due.getTime() - today.getTime()) / 86_400_000);
+    const label = `Due: ${due.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+    if (diffDays < 0) return { appraisalLabel: label, appraisalClass: 'bg-red-50 text-red-700' };
+    if (diffDays <= 90) return { appraisalLabel: label, appraisalClass: 'bg-amber-50 text-amber-700' };
+    return { appraisalLabel: label, appraisalClass: 'bg-green-50 text-green-700' };
   }
 }

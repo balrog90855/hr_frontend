@@ -76,6 +76,43 @@
         <input name="avatarUrl" [(ngModel)]="formData.avatarUrl" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="https://..." type="url">
       </label>
 
+      <label class="flex flex-col gap-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Service (optional)</span>
+        <select name="service" [ngModel]="serviceSelectValue()" (ngModelChange)="onServiceSelectionChange($event)" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+          <option value="">No service...</option>
+          <option *ngFor="let option of serviceOptions()" [ngValue]="option.value">{{ option.label }}</option>
+          <option [ngValue]="customServiceOptionValue">Custom service...</option>
+        </select>
+      </label>
+
+      @if (isCustomService()) {
+        <label class="flex flex-col gap-2 md:col-span-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Custom Service</span>
+          <input name="customService" [ngModel]="customServiceText()" (ngModelChange)="onCustomServiceTextChange($event)" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="Enter service name" type="text">
+        </label>
+      }
+
+      <label class="flex flex-col gap-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Grade (optional)</span>
+        <select name="grade" [ngModel]="gradeSelectValue()" (ngModelChange)="onGradeSelectionChange($event)" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+          <option value="">No grade...</option>
+          <option *ngFor="let option of gradeOptions()" [ngValue]="option.value">{{ option.label }}</option>
+          <option [ngValue]="customGradeOptionValue">Custom grade...</option>
+        </select>
+      </label>
+
+      @if (isCustomGrade()) {
+        <label class="flex flex-col gap-2 md:col-span-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Custom Grade</span>
+          <input name="customGrade" [ngModel]="customGradeText()" (ngModelChange)="onCustomGradeTextChange($event)" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="Enter grade" type="text">
+        </label>
+      }
+
+      <label class="flex flex-col gap-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Appraisal Due Date (optional)</span>
+        <input name="appraisalDueDate" [(ngModel)]="formData.appraisalDueDate" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" type="date">
+      </label>
+
       <div class="md:col-span-2 flex items-center justify-end gap-3 pt-2">
         <button type="button" class="h-11 px-6 rounded-full border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-colors" (click)="close()">
           Cancel

@@ -32,13 +32,16 @@ export class AddEmployeeModalComponent {
 
   readonly isOpen = this.employeeStore.isAddEmployeeModalOpen;
   readonly canAddEmployee = this.employeeStore.canAddEmployee;
-  /** Prevents double-submits during the backend create call. */
   readonly isSaving = signal(false);
   readonly saveErrorMessage = signal<string | null>(null);
   readonly isCustomTeam = signal(false);
   readonly customTeamText = signal('');
   readonly isCustomLocation = signal(false);
   readonly customLocationText = signal('');
+  readonly isCustomService = signal(false);
+  readonly customServiceText = signal('');
+  readonly isCustomGrade = signal(false);
+  readonly customGradeText = signal('');
   readonly jobFilterText = signal('');
   readonly allJobs = this.jobStore.jobs;
   readonly isLoadingJobs = this.jobStore.isLoading;
@@ -74,6 +77,17 @@ export class AddEmployeeModalComponent {
       label: toDisplayLocationLabel(location)
     }));
   });
+
+  readonly serviceOptions = computed(() =>
+    this.employeeStore.availableServices().map((s) => ({ value: s, label: s }))
+  );
+
+  readonly gradeOptions = computed(() =>
+    this.employeeStore.availableGrades().map((g) => ({ value: g, label: g }))
+  );
+
+  readonly customServiceOptionValue = '__custom_service__';
+  readonly customGradeOptionValue = '__custom_grade__';
 
   constructor() {
     if (this.jobStore.jobs().length === 0) {
@@ -113,7 +127,10 @@ export class AddEmployeeModalComponent {
     team: '',
     location: this.defaultLocation(),
     avatarUrl: '',
-    status: 'active'
+    status: 'active',
+    service: '',
+    grade: '',
+    appraisalDueDate: ''
   };
 
   onJobNumberChange(jobNumber: string): void {
@@ -168,6 +185,46 @@ export class AddEmployeeModalComponent {
     this.formData.location = value.trim();
   }
 
+  serviceSelectValue(): string {
+    return this.isCustomService() ? this.customServiceOptionValue : (this.formData.service ?? '');
+  }
+
+  onServiceSelectionChange(value: string): void {
+    if (value === this.customServiceOptionValue) {
+      this.isCustomService.set(true);
+      this.formData.service = this.customServiceText().trim();
+      return;
+    }
+    this.isCustomService.set(false);
+    this.customServiceText.set('');
+    this.formData.service = value;
+  }
+
+  onCustomServiceTextChange(value: string): void {
+    this.customServiceText.set(value);
+    this.formData.service = value.trim();
+  }
+
+  gradeSelectValue(): string {
+    return this.isCustomGrade() ? this.customGradeOptionValue : (this.formData.grade ?? '');
+  }
+
+  onGradeSelectionChange(value: string): void {
+    if (value === this.customGradeOptionValue) {
+      this.isCustomGrade.set(true);
+      this.formData.grade = this.customGradeText().trim();
+      return;
+    }
+    this.isCustomGrade.set(false);
+    this.customGradeText.set('');
+    this.formData.grade = value;
+  }
+
+  onCustomGradeTextChange(value: string): void {
+    this.customGradeText.set(value);
+    this.formData.grade = value.trim();
+  }
+
   onJobFilterTextChange(value: string): void {
     this.jobFilterText.set(value);
   }
@@ -178,6 +235,10 @@ export class AddEmployeeModalComponent {
     this.customTeamText.set('');
     this.isCustomLocation.set(false);
     this.customLocationText.set('');
+    this.isCustomService.set(false);
+    this.customServiceText.set('');
+    this.isCustomGrade.set(false);
+    this.customGradeText.set('');
     this.jobFilterText.set('');
     this.employeeStore.closeAddEmployeeModal();
   }
@@ -234,12 +295,19 @@ export class AddEmployeeModalComponent {
             team: '',
             location: this.defaultLocation(),
             avatarUrl: '',
-            status: 'active'
+            status: 'active',
+            service: '',
+            grade: '',
+            appraisalDueDate: ''
           };
           this.isCustomTeam.set(false);
           this.customTeamText.set('');
           this.isCustomLocation.set(false);
           this.customLocationText.set('');
+          this.isCustomService.set(false);
+          this.customServiceText.set('');
+          this.isCustomGrade.set(false);
+          this.customGradeText.set('');
         },
         error: () => {
           this.saveErrorMessage.set('Unable to add employee. Please try again.');

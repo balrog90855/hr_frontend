@@ -11,6 +11,9 @@ import {
   EmployeeTeamFilter,
   UpdateEmployeeInput
 } from '../models/employee.model';
+
+export type ViewMode = 'directory' | 'appraisals';
+export type AppraisalDueDateFilter = 'all' | 'overdue' | 'this-month' | 'this-quarter' | 'this-year';
 import { AuthService } from './auth.service';
 import { EmployeeApiService } from './employee-api.service';
 import { GlobalSearchService } from './global-search.service';
@@ -48,6 +51,12 @@ export class EmployeeStoreService {
   private readonly currentPageState = signal(1);
   private readonly pageSizeState = signal<number | 'all'>('all');
 
+  // View mode and appraisals-specific filter state.
+  private readonly viewModeState = signal<ViewMode>('directory');
+  private readonly serviceFilterState = signal<string>('all');
+  private readonly gradeFilterState = signal<string>('all');
+  private readonly appraisalDueDateFilterState = signal<AppraisalDueDateFilter>('all');
+
   readonly employees = this.employeesState.asReadonly();
   readonly isAddEmployeeModalOpen = this.addEmployeeModalOpenState.asReadonly();
   readonly isEmployeeDetailsModalOpen = this.employeeDetailsModalOpenState.asReadonly();
@@ -56,6 +65,10 @@ export class EmployeeStoreService {
   readonly statusFilter = this.statusFilterState.asReadonly();
   readonly sortBy = this.sortByState.asReadonly();
   readonly pageSize = this.pageSizeState.asReadonly();
+  readonly viewMode = this.viewModeState.asReadonly();
+  readonly serviceFilter = this.serviceFilterState.asReadonly();
+  readonly gradeFilter = this.gradeFilterState.asReadonly();
+  readonly appraisalDueDateFilter = this.appraisalDueDateFilterState.asReadonly();
   /** Only admin users may create or edit employees. */
   readonly canAddEmployee = this.authService.isAdmin;
   /** The full employee object for the currently selected details modal entry. */
@@ -77,6 +90,10 @@ export class EmployeeStoreService {
     const teamFilter = this.teamFilterState();
     const locationFilter = this.locationFilterState();
     const statusFilter = this.statusFilterState();
+    const serviceFilter = this.serviceFilterState();
+    const gradeFilter = this.gradeFilterState();
+    const dueDateFilter = this.appraisalDueDateFilterState();
+    const viewMode = this.viewModeState();
     const sortBy = this.sortByState();
     const searchTerm = this.globalSearchService.normalizedSearchTerm();
     const filteredByTeam =
@@ -94,10 +111,45 @@ export class EmployeeStoreService {
         ? filteredByLocation
         : filteredByLocation.filter((employee) => employee.status === statusFilter);
 
+    const filteredByService =
+      viewMode !== 'appraisals' || serviceFilter === 'all'
+        ? filteredByStatus
+        : filteredByStatus.filter((employee) => (employee.service ?? '') === serviceFilter);
+
+    const filteredByGrade =
+      viewMode !== 'appraisals' || gradeFilter === 'all'
+        ? filteredByService
+        : filteredByService.filter((employee) => (employee.grade ?? '') === gradeFilter);
+
+    const filteredByDueDate =
+      viewMode !== 'appraisals' || dueDateFilter === 'all'
+        ? filteredByGrade
+        : filteredByGrade.filter((employee) => {
+            const dateStr = employee.appraisalDueDate;
+            if (!dateStr) return false;
+            const due = new Date(dateStr);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (dueDateFilter === 'overdue') return due < today;
+            if (dueDateFilter === 'this-month') {
+              return due.getFullYear() === today.getFullYear() && due.getMonth() === today.getMonth() && due >= today;
+            }
+            if (dueDateFilter === 'this-quarter') {
+              const q = Math.floor(today.getMonth() / 3);
+              const qStart = new Date(today.getFullYear(), q * 3, 1);
+              const qEnd = new Date(today.getFullYear(), q * 3 + 3, 0);
+              return due >= qStart && due <= qEnd;
+            }
+            if (dueDateFilter === 'this-year') {
+              return due.getFullYear() === today.getFullYear();
+            }
+            return true;
+          });
+
     const filtered =
       searchTerm.length === 0
-        ? filteredByStatus
-        : filteredByStatus.filter((employee) => {
+        ? filteredByDueDate
+        : filteredByDueDate.filter((employee) => {
             const teamLabel = getTeamMeta(employee.team).label;
             const locationLabel = employee.location;
 
@@ -107,7 +159,9 @@ export class EmployeeStoreService {
               employee.jobTitle,
               teamLabel,
               locationLabel,
-              employee.status
+              employee.status,
+              employee.service ?? '',
+              employee.grade ?? ''
             ]
               .join(' ')
               .toLowerCase();
@@ -121,6 +175,15 @@ export class EmployeeStoreService {
 
     if (sortBy === EmployeeSortBy.Team) {
       return [...filtered].sort((a, b) => a.team.localeCompare(b.team));
+    }
+
+    if (sortBy === EmployeeSortBy.AppraisalDate) {
+      return [...filtered].sort((a, b) => {
+        if (!a.appraisalDueDate && !b.appraisalDueDate) return 0;
+        if (!a.appraisalDueDate) return 1;
+        if (!b.appraisalDueDate) return -1;
+        return a.appraisalDueDate.localeCompare(b.appraisalDueDate);
+      });
     }
 
     return filtered;
@@ -164,6 +227,24 @@ export class EmployeeStoreService {
     );
 
     return allowedStatuses.filter((status) => statuses.has(status));
+  });
+
+  readonly availableServices = computed<string[]>(() => {
+    const unique = new Set(
+      this.employeesState()
+        .map((e) => e.service?.trim() ?? '')
+        .filter((s) => s.length > 0)
+    );
+    return [...unique].sort((a, b) => a.localeCompare(b));
+  });
+
+  readonly availableGrades = computed<string[]>(() => {
+    const unique = new Set(
+      this.employeesState()
+        .map((e) => e.grade?.trim() ?? '')
+        .filter((g) => g.length > 0)
+    );
+    return [...unique].sort((a, b) => a.localeCompare(b));
   });
 
   
@@ -282,6 +363,26 @@ export class EmployeeStoreService {
 
   setSortBy(sortBy: EmployeeSortBy): void {
     this.sortByState.set(sortBy);
+    this.currentPageState.set(1);
+  }
+
+  setViewMode(mode: ViewMode): void {
+    this.viewModeState.set(mode);
+    this.currentPageState.set(1);
+  }
+
+  setServiceFilter(filter: string): void {
+    this.serviceFilterState.set(filter);
+    this.currentPageState.set(1);
+  }
+
+  setGradeFilter(filter: string): void {
+    this.gradeFilterState.set(filter);
+    this.currentPageState.set(1);
+  }
+
+  setAppraisalDueDateFilter(filter: AppraisalDueDateFilter): void {
+    this.appraisalDueDateFilterState.set(filter);
     this.currentPageState.set(1);
   }
 

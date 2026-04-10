@@ -17,7 +17,8 @@ export type EmployeeStatusFilter = 'all' | 'active' | 'pipeline';
 export enum EmployeeSortBy {
   RecentlyAdded = 'recently-added',
   NameAscending = 'name-ascending',
-  Team = 'team'
+  Team = 'team',
+  AppraisalDate = 'appraisal-date'
 }
 
 export type PipelineStage = 'training' | 'waiting-to-join';
@@ -36,6 +37,9 @@ export interface Employee {
   trainingCourse?: string;
   expectedStartDate?: string;
   jobId?: string | null;
+  service?: string;
+  grade?: string;
+  appraisalDueDate?: string;
 }
 
 export interface CreateEmployeeInput {
@@ -46,6 +50,9 @@ export interface CreateEmployeeInput {
   location: EmployeeLocation;
   avatarUrl?: string;
   status: 'active' | 'away' | 'offline' | 'pipeline';
+  service?: string;
+  grade?: string;
+  appraisalDueDate?: string;
 }
 
 export interface UpdateEmployeeInput {
@@ -56,6 +63,9 @@ export interface UpdateEmployeeInput {
   location: EmployeeLocation;
   avatarUrl?: string;
   status: 'active' | 'away' | 'offline' | 'pipeline';
+  service?: string;
+  grade?: string;
+  appraisalDueDate?: string;
 }
 
 export interface EmployeeTeamMeta {

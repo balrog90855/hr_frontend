@@ -20,6 +20,9 @@ interface BackendEmployee {
   location?: string;
   avatar_url?: string;
   status?: string;
+  service?: string;
+  grade?: string;
+  appraisal_due_date?: string;
 }
 
 /** Accepts both a plain array and pagination-wrapped envelope responses from the API. */
@@ -96,7 +99,10 @@ export class EmployeeApiService {
       team: this.toEmployeeTeamName(employee.team),
       location: this.toEmployeeLocation(employee.location),
       avatarUrl: employee.avatar_url ?? this.defaultAvatarUrl(),
-      status: this.toEmployeeStatus(employee.status)
+      status: this.toEmployeeStatus(employee.status),
+      service: employee.service ?? undefined,
+      grade: employee.grade ?? undefined,
+      appraisalDueDate: employee.appraisal_due_date ?? undefined
     };
   }
 
@@ -109,7 +115,10 @@ export class EmployeeApiService {
       team: input.team,
       location: input.location.trim(),
       avatar_url: input.avatarUrl ?? '',
-      status: input.status
+      status: input.status,
+      ...(input.service ? { service: input.service } : {}),
+      ...(input.grade ? { grade: input.grade } : {}),
+      ...(input.appraisalDueDate ? { appraisal_due_date: input.appraisalDueDate } : {})
     };
   }
 
@@ -122,7 +131,10 @@ export class EmployeeApiService {
       team: input.team,
       location: input.location.trim(),
       avatar_url: input.avatarUrl ?? '',
-      status: input.status
+      status: input.status,
+      ...(input.service !== undefined ? { service: input.service } : {}),
+      ...(input.grade !== undefined ? { grade: input.grade } : {}),
+      ...(input.appraisalDueDate !== undefined ? { appraisal_due_date: input.appraisalDueDate } : {})
     };
   }
 

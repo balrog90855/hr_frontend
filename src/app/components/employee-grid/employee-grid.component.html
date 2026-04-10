@@ -27,6 +27,26 @@
       <span [class]="employee.locationClass + ' mt-3 inline-flex px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-full'">
         {{ employee.locationLabel }}
       </span>
+
+      <!-- Appraisals mode extras -->
+      @if (viewMode() === 'appraisals') {
+        <div class="mt-3 flex flex-wrap gap-2">
+          @if (employee.service) {
+            <span class="bg-indigo-50 text-indigo-700 inline-flex px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-full">
+              {{ employee.service }}
+            </span>
+          }
+          @if (employee.grade) {
+            <span class="bg-violet-50 text-violet-700 inline-flex px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-full">
+              {{ employee.grade }}
+            </span>
+          }
+          <span [class]="employee.appraisalClass + ' inline-flex items-center gap-1 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-full'">
+            <span class="material-symbols-outlined text-[12px]">event_available</span>
+            {{ employee.appraisalLabel }}
+          </span>
+        </div>
+      }
     </div>
   </div>
 
