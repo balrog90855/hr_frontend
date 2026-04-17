@@ -17,6 +17,7 @@ export type AppraisalDueDateFilter = 'all' | 'overdue' | 'this-month' | 'this-qu
 import { AuthService } from './auth.service';
 import { EmployeeApiService } from './employee-api.service';
 import { GlobalSearchService } from './global-search.service';
+import { JobStoreService } from './job-store.service';
 import { ToastService } from './toast.service';
 
 /**
@@ -34,6 +35,7 @@ export class EmployeeStoreService {
   private readonly authService = inject(AuthService);
   private readonly employeeApi = inject(EmployeeApiService);
   private readonly globalSearchService = inject(GlobalSearchService);
+  private readonly jobStore = inject(JobStoreService);
   private readonly toastService = inject(ToastService);
 
   /** Master list of all employees loaded from the backend. */
@@ -422,6 +424,7 @@ export class EmployeeStoreService {
       tap((createdEmployee) => {
         this.employeesState.update((current) => [createdEmployee, ...current]);
         this.currentPageState.set(1);
+        this.jobStore.loadJobs();
         this.closeAddEmployeeModal();
         this.toastService.showSuccess(`Added ${createdEmployee.fullName} to the directory.`);
       }),
@@ -456,6 +459,7 @@ export class EmployeeStoreService {
           current.map((entry) => (entry.id === employeeId ? updatedEmployee : entry))
         );
 
+        this.jobStore.loadJobs();
         this.closeEmployeeDetailsModal();
         this.toastService.showSuccess(`Updated ${updatedEmployee.fullName}.`);
       }),
@@ -486,6 +490,7 @@ export class EmployeeStoreService {
 
         const nextTotalPages = this.totalPages();
         this.currentPageState.set(this.clampPage(this.currentPageState(), nextTotalPages));
+        this.jobStore.loadJobs();
         this.closeEmployeeDetailsModal();
         this.toastService.showSuccess(`Removed ${employee.fullName} from the directory.`);
       }),
