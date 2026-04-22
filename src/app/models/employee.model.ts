@@ -41,6 +41,7 @@ export interface Employee {
   service?: string;
   grade?: string;
   appraisalDueDate?: string;
+  fad?: string;
 }
 
 export interface CreateEmployeeInput {
@@ -54,6 +55,8 @@ export interface CreateEmployeeInput {
   service?: string;
   grade?: string;
   appraisalDueDate?: string;
+  expectedStartDate?: string;
+  fad?: string;
 }
 
 export interface UpdateEmployeeInput {
@@ -67,6 +70,8 @@ export interface UpdateEmployeeInput {
   service?: string;
   grade?: string;
   appraisalDueDate?: string;
+  expectedStartDate?: string;
+  fad?: string;
 }
 
 export interface EmployeeTeamMeta {

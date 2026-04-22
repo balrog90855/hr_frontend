@@ -31,6 +31,20 @@
         {{ employee.retentionLabel }}
       </span>
 
+      @if (employee.status === 'pipeline' && employee.expectedStartDate) {
+        <span class="mt-3 inline-flex items-center gap-1 bg-teal-50 text-teal-700 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-full">
+          <span class="material-symbols-outlined text-[12px]">calendar_today</span>
+          Starts: {{ formatDate(employee.expectedStartDate) }}
+        </span>
+      }
+
+      @if (employee.fad) {
+        <span class="mt-3 inline-flex items-center gap-1 bg-purple-50 text-purple-700 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-full">
+          <span class="material-symbols-outlined text-[12px]">event</span>
+          FAD: {{ formatDate(employee.fad) }}
+        </span>
+      }
+
       <!-- Appraisals mode extras -->
       @if (viewMode() === 'appraisals') {
         <div class="mt-3 flex flex-wrap gap-2">

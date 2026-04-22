@@ -101,7 +101,9 @@ export class EmployeeDetailsModalComponent {
     status: 'active',
     service: '',
     grade: '',
-    appraisalDueDate: ''
+    appraisalDueDate: '',
+    expectedStartDate: '',
+    fad: ''
   };
 
   constructor() {
@@ -136,7 +138,9 @@ export class EmployeeDetailsModalComponent {
         status: this.toEditableStatus(employee.status),
         service: employee.service ?? '',
         grade: employee.grade ?? '',
-        appraisalDueDate: employee.appraisalDueDate ?? ''
+        appraisalDueDate: employee.appraisalDueDate ?? '',
+        expectedStartDate: employee.expectedStartDate ?? '',
+        fad: employee.fad ?? ''
       };
 
       this.syncTeamSelectionMode(employee.team);

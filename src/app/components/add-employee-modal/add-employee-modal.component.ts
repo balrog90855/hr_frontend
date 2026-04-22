@@ -130,7 +130,9 @@ export class AddEmployeeModalComponent {
     status: 'active',
     service: '',
     grade: '',
-    appraisalDueDate: ''
+    appraisalDueDate: '',
+    expectedStartDate: '',
+    fad: ''
   };
 
   onJobNumberChange(jobNumber: string): void {
@@ -298,7 +300,9 @@ export class AddEmployeeModalComponent {
             status: 'active',
             service: '',
             grade: '',
-            appraisalDueDate: ''
+            appraisalDueDate: '',
+            expectedStartDate: '',
+            fad: ''
           };
           this.isCustomTeam.set(false);
           this.customTeamText.set('');

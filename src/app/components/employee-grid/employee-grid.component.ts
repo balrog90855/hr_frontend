@@ -13,6 +13,7 @@ interface EmployeeCardViewModel {
   locationLabel: string;
   locationClass: string;
   avatarUrl: string;
+  status: string;
   appraisalDueDate?: string;
   appraisalLabel: string;
   appraisalClass: string;
@@ -20,6 +21,8 @@ interface EmployeeCardViewModel {
   grade?: string;
   retentionLabel: string;
   retentionClass: string;
+  expectedStartDate?: string;
+  fad?: string;
 }
 
 @Component({
@@ -66,13 +69,16 @@ export class EmployeeGridComponent {
       locationLabel,
       locationClass,
       avatarUrl: employee.avatarUrl,
+      status: employee.status,
       appraisalDueDate: employee.appraisalDueDate,
       appraisalLabel,
       appraisalClass,
       service: employee.service,
       grade: employee.grade,
       retentionLabel,
-      retentionClass
+      retentionClass,
+      expectedStartDate: employee.expectedStartDate,
+      fad: employee.fad
     };
   }
 
@@ -104,6 +110,12 @@ export class EmployeeGridComponent {
     if (normalized === 'north') return 'bg-cyan-50 text-cyan-700';
     if (normalized === 'south') return 'bg-slate-100 text-slate-700';
     return 'bg-amber-50 text-amber-700';
+  }
+
+  formatDate(dateStr: string | undefined): string {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
   private toAppraisalMeta(dateStr: string | undefined): { appraisalLabel: string; appraisalClass: string } {

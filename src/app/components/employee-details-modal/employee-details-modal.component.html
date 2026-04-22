@@ -117,6 +117,16 @@
             <input name="appraisalDueDate" [(ngModel)]="formData.appraisalDueDate" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" type="date">
           </label>
 
+          <label class="flex flex-col gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Expected Start Date (optional)</span>
+            <input name="expectedStartDate" [(ngModel)]="formData.expectedStartDate" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" type="date">
+          </label>
+
+          <label class="flex flex-col gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">FAD (optional)</span>
+            <input name="fad" [(ngModel)]="formData.fad" class="h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" type="date">
+          </label>
+
           @if (saveErrorMessage()) {
             <p class="md:col-span-2 text-sm text-red-600">{{ saveErrorMessage() }}</p>
           }

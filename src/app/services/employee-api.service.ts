@@ -23,6 +23,8 @@ interface BackendEmployee {
   service?: string;
   grade?: string;
   appraisal_due_date?: string;
+  expected_start?: string;
+  fad?: string;
 }
 
 /** Accepts both a plain array and pagination-wrapped envelope responses from the API. */
@@ -102,7 +104,9 @@ export class EmployeeApiService {
       status: this.toEmployeeStatus(employee.status),
       service: employee.service ?? undefined,
       grade: employee.grade ?? undefined,
-      appraisalDueDate: employee.appraisal_due_date ?? undefined
+      appraisalDueDate: employee.appraisal_due_date ?? undefined,
+      expectedStartDate: employee.expected_start ?? undefined,
+      fad: employee.fad ?? undefined
     };
   }
 
@@ -118,7 +122,9 @@ export class EmployeeApiService {
       status: input.status,
       ...(input.service ? { service: input.service } : {}),
       ...(input.grade ? { grade: input.grade } : {}),
-      ...(input.appraisalDueDate ? { appraisal_due_date: input.appraisalDueDate } : {})
+      ...(input.appraisalDueDate ? { appraisal_due_date: input.appraisalDueDate } : {}),
+      ...(input.expectedStartDate ? { expected_start: input.expectedStartDate } : {}),
+      ...(input.fad ? { fad: input.fad } : {})
     };
   }
 
@@ -134,7 +140,9 @@ export class EmployeeApiService {
       status: input.status,
       ...(input.service !== undefined ? { service: input.service } : {}),
       ...(input.grade !== undefined ? { grade: input.grade } : {}),
-      ...(input.appraisalDueDate !== undefined ? { appraisal_due_date: input.appraisalDueDate } : {})
+      ...(input.appraisalDueDate !== undefined ? { appraisal_due_date: input.appraisalDueDate } : {}),
+      ...(input.expectedStartDate !== undefined ? { expected_start: input.expectedStartDate } : {}),
+      ...(input.fad !== undefined ? { fad: input.fad } : {})
     };
   }
 
