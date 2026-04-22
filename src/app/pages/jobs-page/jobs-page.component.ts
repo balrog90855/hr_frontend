@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { Job } from '../../models/job.model';
@@ -106,6 +106,15 @@ export class JobsPageComponent {
     if (this.jobStore.jobs().length === 0) {
       this.jobStore.loadJobs();
     }
+
+    effect(() => {
+      if (!this.jobStore.isCreateJobModalRequested()) {
+        return;
+      }
+
+      this.openCreateJobModal();
+      this.jobStore.consumeCreateJobModalRequest();
+    });
   }
 
   setRetentionFilter(filter: JobRetentionFilter): void {

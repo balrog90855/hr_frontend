@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { EmployeeStoreService } from '../../services/employee-store.service';
+import { JobStoreService } from '../../services/job-store.service';
 
 @Component({
   selector: 'app-sidebar-nav',
@@ -15,10 +16,24 @@ import { EmployeeStoreService } from '../../services/employee-store.service';
  */
 export class SidebarNavComponent {
   private readonly employeeStore = inject(EmployeeStoreService);
+  private readonly jobStore = inject(JobStoreService);
+  private readonly router = inject(Router);
   /** Mirrors the store's admin check; hides the add-employee nav item for non-admins. */
   readonly canAddEmployee = this.employeeStore.canAddEmployee;
 
   requestAddEmployee(): void {
     this.employeeStore.openAddEmployeeModal();
+  }
+
+  requestAddJob(): void {
+    if (!this.canAddEmployee()) {
+      return;
+    }
+
+    this.jobStore.requestCreateJobModal();
+
+    if (!this.router.url.startsWith('/jobs')) {
+      this.router.navigateByUrl('/jobs');
+    }
   }
 }

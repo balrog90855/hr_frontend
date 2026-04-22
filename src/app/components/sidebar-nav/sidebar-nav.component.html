@@ -60,7 +60,7 @@
       </a>
     </nav>
 
-    <div class="mt-8 px-4">
+    <div class="mt-8 px-4 space-y-3">
       <button
         (click)="requestAddEmployee()"
         class="w-full py-3 bg-primary text-on-primary rounded-full font-bold shadow-md hover:bg-primary-container transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
@@ -69,8 +69,18 @@
       >
         Add Employee
       </button>
+
+      <button
+        (click)="requestAddJob()"
+        class="w-full py-3 bg-primary text-on-primary rounded-full font-bold shadow-md hover:bg-primary-container transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
+        type="button"
+        [disabled]="!canAddEmployee()"
+      >
+        Add Job
+      </button>
+
       @if (!canAddEmployee()) {
-        <p class="mt-2 text-xs text-slate-500">Only admin users can add employees.</p>
+        <p class="mt-2 text-xs text-slate-500">Only admin users can add employees and jobs.</p>
       }
     </div>
   </div>

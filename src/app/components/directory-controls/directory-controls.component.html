@@ -20,60 +20,66 @@
     </button>
   </div>
 
-  <!-- Filters + sort row -->
-  <div class="flex items-center justify-between">
+  <!-- Filters + sort rows -->
+  <div class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:gap-x-8">
 
-    <!-- Directory filters -->
-    <div *ngIf="viewMode() === 'directory'" class="relative flex items-center gap-3">
-      <label class="text-sm font-semibold text-slate-400" for="team-filter-main">Filter by Team:</label>
-      <select (change)="onTeamFilterChange($any($event.target).value)" class="h-11 px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm min-w-[180px]" id="team-filter-main">
+    <!-- Directory row 1 filters -->
+    <div *ngIf="viewMode() === 'directory'" class="relative grid grid-cols-1 gap-3 md:grid-cols-[max-content_220px_max-content_220px] md:items-center">
+      <label class="text-sm font-semibold text-slate-400 md:justify-self-end" for="team-filter-main">Filter by Team:</label>
+      <select (change)="onTeamFilterChange($any($event.target).value)" class="h-11 w-full md:w-[220px] px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm" id="team-filter-main">
         <option *ngFor="let option of teamOptions()" [value]="option.value" [selected]="option.value === teamFilter()">{{ option.label }}</option>
       </select>
 
-      <label class="text-sm font-semibold text-slate-400" for="location-filter-main">Location:</label>
-      <select (change)="onLocationFilterChange($any($event.target).value)" class="h-11 px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm min-w-[150px]" id="location-filter-main">
+      <label class="text-sm font-semibold text-slate-400 md:justify-self-end" for="location-filter-main">Location:</label>
+      <select (change)="onLocationFilterChange($any($event.target).value)" class="h-11 w-full md:w-[220px] px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm" id="location-filter-main">
         <option *ngFor="let option of locationOptions()" [value]="option.value" [selected]="option.value === locationFilter()">{{ option.label }}</option>
       </select>
+    </div>
 
-      <label class="text-sm font-semibold text-slate-400" for="status-filter-main">Status:</label>
-      <select (change)="onStatusFilterChange($any($event.target).value)" class="h-11 px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm min-w-[160px]" id="status-filter-main">
+    <!-- Appraisals row 1 filters -->
+    <div *ngIf="viewMode() === 'appraisals'" class="relative grid grid-cols-1 gap-3 md:grid-cols-[max-content_220px_max-content_220px] md:items-center">
+      <label class="text-sm font-semibold text-slate-400 md:justify-self-end" for="service-filter-main">Service:</label>
+      <select (change)="onServiceFilterChange($any($event.target).value)" class="h-11 w-full md:w-[220px] px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm" id="service-filter-main">
+        <option *ngFor="let option of serviceOptions()" [value]="option.value" [selected]="option.value === serviceFilter()">{{ option.label }}</option>
+      </select>
+
+      <label class="text-sm font-semibold text-slate-400 md:justify-self-end" for="grade-filter-main">Grade:</label>
+      <select (change)="onGradeFilterChange($any($event.target).value)" class="h-11 w-full md:w-[220px] px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm" id="grade-filter-main">
+        <option *ngFor="let option of gradeOptions()" [value]="option.value" [selected]="option.value === gradeFilter()">{{ option.label }}</option>
+      </select>
+    </div>
+
+    <!-- Sort + page size (right column spanning both rows on desktop) -->
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-[max-content_150px_max-content_180px] sm:items-center xl:row-span-2 xl:self-start xl:justify-end">
+      <span class="text-sm font-semibold text-slate-400 sm:justify-self-end">Show:</span>
+      <select (change)="onPageSizeChange($any($event.target).value)" class="h-11 w-full sm:w-[150px] bg-white border-none rounded-full px-4 text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm">
+        <option *ngFor="let option of pageSizeOptions" [value]="option.value" [selected]="option.value === pageSize().toString()">{{ option.label }}</option>
+      </select>
+
+      <span class="text-sm font-semibold text-slate-400 sm:justify-self-end">Sort by:</span>
+      <select (change)="onSortByChange($any($event.target).value)" class="h-11 w-full sm:w-[180px] bg-white border-none rounded-full px-4 text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm">
+        <option *ngFor="let option of sortOptions()" [value]="option.value" [selected]="option.value === sortBy()">{{ option.label }}</option>
+      </select>
+    </div>
+
+    <!-- Directory row 2 filters -->
+    <div *ngIf="viewMode() === 'directory'" class="relative grid grid-cols-1 gap-3 md:grid-cols-[max-content_220px_max-content_220px] md:items-center">
+      <label class="text-sm font-semibold text-slate-400 md:justify-self-end" for="status-filter-main">Status:</label>
+      <select (change)="onStatusFilterChange($any($event.target).value)" class="h-11 w-full md:w-[220px] px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm" id="status-filter-main">
         <option *ngFor="let option of statusOptions()" [value]="option.value" [selected]="option.value === statusFilter()">{{ option.label }}</option>
       </select>
 
-      <label class="text-sm font-semibold text-slate-400" for="retention-filter-main">Retention:</label>
-      <select (change)="onRetentionFilterChange($any($event.target).value)" class="h-11 px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm min-w-[180px]" id="retention-filter-main">
+      <label class="text-sm font-semibold text-slate-400 md:justify-self-end" for="retention-filter-main">Retention:</label>
+      <select (change)="onRetentionFilterChange($any($event.target).value)" class="h-11 w-full md:w-[220px] px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm" id="retention-filter-main">
         <option *ngFor="let option of retentionOptions" [value]="option.value" [selected]="option.value === retentionFilter()">{{ option.label }}</option>
       </select>
     </div>
 
-    <!-- Appraisals filters -->
-    <div *ngIf="viewMode() === 'appraisals'" class="relative flex items-center gap-3">
-      <label class="text-sm font-semibold text-slate-400" for="service-filter-main">Service:</label>
-      <select (change)="onServiceFilterChange($any($event.target).value)" class="h-11 px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm min-w-[180px]" id="service-filter-main">
-        <option *ngFor="let option of serviceOptions()" [value]="option.value" [selected]="option.value === serviceFilter()">{{ option.label }}</option>
-      </select>
-
-      <label class="text-sm font-semibold text-slate-400" for="grade-filter-main">Grade:</label>
-      <select (change)="onGradeFilterChange($any($event.target).value)" class="h-11 px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm min-w-[150px]" id="grade-filter-main">
-        <option *ngFor="let option of gradeOptions()" [value]="option.value" [selected]="option.value === gradeFilter()">{{ option.label }}</option>
-      </select>
-
-      <label class="text-sm font-semibold text-slate-400" for="duedate-filter-main">Due within:</label>
-      <select (change)="onDueDateFilterChange($any($event.target).value)" class="h-11 px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm min-w-[160px]" id="duedate-filter-main">
+    <!-- Appraisals row 2 filters -->
+    <div *ngIf="viewMode() === 'appraisals'" class="relative grid grid-cols-1 gap-3 md:grid-cols-[max-content_220px] md:items-center">
+      <label class="text-sm font-semibold text-slate-400 md:justify-self-end" for="duedate-filter-main">Due within:</label>
+      <select (change)="onDueDateFilterChange($any($event.target).value)" class="h-11 w-full md:w-[220px] px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm" id="duedate-filter-main">
         <option *ngFor="let option of dueDateOptions" [value]="option.value" [selected]="option.value === appraisalDueDateFilter()">{{ option.label }}</option>
-      </select>
-    </div>
-
-    <!-- Sort + page size (always visible) -->
-    <div class="flex items-center gap-3">
-      <span class="text-sm font-semibold text-slate-400">Show:</span>
-      <select (change)="onPageSizeChange($any($event.target).value)" class="bg-transparent border-none text-sm font-bold text-blue-900 focus:ring-0 cursor-pointer">
-        <option *ngFor="let option of pageSizeOptions" [value]="option.value" [selected]="option.value === pageSize().toString()">{{ option.label }}</option>
-      </select>
-
-      <span class="text-sm font-semibold text-slate-400">Sort by:</span>
-      <select (change)="onSortByChange($any($event.target).value)" class="bg-transparent border-none text-sm font-bold text-blue-900 focus:ring-0 cursor-pointer">
-        <option *ngFor="let option of sortOptions()" [value]="option.value" [selected]="option.value === sortBy()">{{ option.label }}</option>
       </select>
     </div>
 

@@ -11,9 +11,11 @@ export class JobStoreService {
   private readonly jobsState = signal<Job[]>([]);
   private readonly isLoadingState = signal(false);
   private readonly hasInitialisedForSessionState = signal(false);
+  private readonly createJobModalRequestedState = signal(false);
 
   readonly jobs = this.jobsState.asReadonly();
   readonly isLoading = this.isLoadingState.asReadonly();
+  readonly isCreateJobModalRequested = this.createJobModalRequestedState.asReadonly();
   readonly vacantJobs = computed(() =>
     this.jobsState().filter((job) => job.is_vacant === 1)
   );
@@ -43,6 +45,14 @@ export class JobStoreService {
         },
         error: () => this.jobsState.set([])
       });
+  }
+
+  requestCreateJobModal(): void {
+    this.createJobModalRequestedState.set(true);
+  }
+
+  consumeCreateJobModalRequest(): void {
+    this.createJobModalRequestedState.set(false);
   }
 
   private readFromStorage<T>(key: string): T | null {
