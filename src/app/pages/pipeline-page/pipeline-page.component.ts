@@ -24,6 +24,8 @@ interface VacantPositionViewModel {
   title: string;
   vacancyLabel: string;
   vacancyClass: string;
+  retainedLabel: string;
+  retainedClass: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -462,6 +464,9 @@ export class PipelinePageComponent {
       vacancyLabel: position.is_vacant === 1 ? 'Vacant' : 'Filled',
       vacancyClass:
         position.is_vacant === 1 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700',
+      retainedLabel: position.is_retained === 1 ? 'Retained' : 'Not Retained',
+      retainedClass:
+        position.is_retained === 1 ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700',
       createdAt: this.formatTimestamp(position.created_at),
       updatedAt: this.formatTimestamp(position.updated_at)
     };
