@@ -16,6 +16,7 @@ type AdminTab = 'submit' | 'received';
   templateUrl: './nominations-page.component.html',
 })
 export class NominationsPageComponent {
+  readonly nominationMinLength = 10;
   private readonly authService = inject(AuthService);
   private readonly employeeStore = inject(EmployeeStoreService);
   private readonly nominationApi = inject(NominationApiService);
@@ -57,6 +58,11 @@ export class NominationsPageComponent {
   nomineeEmployeeId = '';
   nominationText = '';
 
+  readonly nominationTextLength = computed(() => this.nominationText.trim().length);
+  readonly hasEnoughNominationText = computed(
+    () => this.nominationTextLength() >= this.nominationMinLength
+  );
+
   readonly isSubmitting = signal(false);
   readonly submitSuccess = signal(false);
   readonly submitError = signal<string | null>(null);
@@ -66,7 +72,7 @@ export class NominationsPageComponent {
       this.nominatorName.trim().length > 0 &&
       this.nominatorTeam.trim().length > 0 &&
       this.nomineeEmployeeId.length > 0 &&
-      this.nominationText.trim().length >= 10 &&
+      this.nominationText.trim().length >= this.nominationMinLength &&
       !this.isSubmitting()
     );
   }
