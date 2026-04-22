@@ -27,6 +27,9 @@
       <span [class]="employee.locationClass + ' mt-3 inline-flex px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-full'">
         {{ employee.locationLabel }}
       </span>
+      <span [class]="employee.retentionClass + ' mt-3 inline-flex px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-full'">
+        {{ employee.retentionLabel }}
+      </span>
 
       <!-- Appraisals mode extras -->
       @if (viewMode() === 'appraisals') {

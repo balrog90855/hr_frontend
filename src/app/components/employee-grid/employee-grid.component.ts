@@ -18,6 +18,8 @@ interface EmployeeCardViewModel {
   appraisalClass: string;
   service?: string;
   grade?: string;
+  retentionLabel: string;
+  retentionClass: string;
 }
 
 @Component({
@@ -52,6 +54,7 @@ export class EmployeeGridComponent {
     const locationLabel = toDisplayLocationLabel(employee.location);
     const locationClass = this.toLocationClass(employee.location);
     const { appraisalLabel, appraisalClass } = this.toAppraisalMeta(employee.appraisalDueDate);
+    const { retentionLabel, retentionClass } = this.toRetentionMeta(employee.jobNumber);
 
     return {
       id: employee.id,
@@ -67,7 +70,32 @@ export class EmployeeGridComponent {
       appraisalLabel,
       appraisalClass,
       service: employee.service,
-      grade: employee.grade
+      grade: employee.grade,
+      retentionLabel,
+      retentionClass
+    };
+  }
+
+  private toRetentionMeta(jobNumber: string): { retentionLabel: string; retentionClass: string } {
+    const retentionStatus = this.employeeStore.employeeRetentionStatus(jobNumber);
+
+    if (retentionStatus === 'retained') {
+      return {
+        retentionLabel: 'Retained Job',
+        retentionClass: 'bg-blue-100 text-blue-800'
+      };
+    }
+
+    if (retentionStatus === 'not-retained') {
+      return {
+        retentionLabel: 'Not Retained Job',
+        retentionClass: 'bg-rose-100 text-rose-800'
+      };
+    }
+
+    return {
+      retentionLabel: 'Retention Unknown',
+      retentionClass: 'bg-slate-100 text-slate-700'
     };
   }
 

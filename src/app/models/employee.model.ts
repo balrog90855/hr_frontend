@@ -13,6 +13,7 @@ export const DEFAULT_EMPLOYEE_LOCATION = 'north';
 export type EmployeeTeamFilter = 'all' | string;
 export type EmployeeLocationFilter = 'all' | EmployeeLocation;
 export type EmployeeStatusFilter = 'all' | 'active' | 'pipeline';
+export type EmployeeRetentionFilter = 'all' | 'retained' | 'not-retained';
 
 export enum EmployeeSortBy {
   RecentlyAdded = 'recently-added',

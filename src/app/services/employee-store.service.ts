@@ -5,6 +5,7 @@ import {
   CreateEmployeeInput,
   Employee,
   EmployeeLocationFilter,
+  EmployeeRetentionFilter,
   EmployeeSortBy,
   EmployeeStatusFilter,
   getTeamMeta,
@@ -49,6 +50,7 @@ export class EmployeeStoreService {
   private readonly teamFilterState = signal<EmployeeTeamFilter>('all');
   private readonly locationFilterState = signal<EmployeeLocationFilter>('all');
   private readonly statusFilterState = signal<EmployeeStatusFilter>('all');
+  private readonly retentionFilterState = signal<EmployeeRetentionFilter>('all');
   private readonly sortByState = signal<EmployeeSortBy>(EmployeeSortBy.RecentlyAdded);
   private readonly currentPageState = signal(1);
   private readonly pageSizeState = signal<number | 'all'>('all');
@@ -65,6 +67,7 @@ export class EmployeeStoreService {
   readonly teamFilter = this.teamFilterState.asReadonly();
   readonly locationFilter = this.locationFilterState.asReadonly();
   readonly statusFilter = this.statusFilterState.asReadonly();
+  readonly retentionFilter = this.retentionFilterState.asReadonly();
   readonly sortBy = this.sortByState.asReadonly();
   readonly pageSize = this.pageSizeState.asReadonly();
   readonly viewMode = this.viewModeState.asReadonly();
@@ -92,6 +95,7 @@ export class EmployeeStoreService {
     const teamFilter = this.teamFilterState();
     const locationFilter = this.locationFilterState();
     const statusFilter = this.statusFilterState();
+    const retentionFilter = this.retentionFilterState();
     const serviceFilter = this.serviceFilterState();
     const gradeFilter = this.gradeFilterState();
     const dueDateFilter = this.appraisalDueDateFilterState();
@@ -113,10 +117,31 @@ export class EmployeeStoreService {
         ? filteredByLocation
         : filteredByLocation.filter((employee) => employee.status === statusFilter);
 
+    const jobRetentionByNumber = new Map(
+      this.jobStore.jobs().map((job) => [job.job_number.trim().toLowerCase(), job.is_retained === 1])
+    );
+
+    const filteredByRetention =
+      retentionFilter === 'all'
+        ? filteredByStatus
+        : filteredByStatus.filter((employee) => {
+            const retentionStatus = jobRetentionByNumber.get(employee.jobNumber.trim().toLowerCase());
+
+            if (retentionStatus === undefined) {
+              return false;
+            }
+
+            if (retentionFilter === 'retained') {
+              return retentionStatus;
+            }
+
+            return !retentionStatus;
+          });
+
     const filteredByService =
       viewMode !== 'appraisals' || serviceFilter === 'all'
-        ? filteredByStatus
-        : filteredByStatus.filter((employee) => (employee.service ?? '') === serviceFilter);
+        ? filteredByRetention
+        : filteredByRetention.filter((employee) => (employee.service ?? '') === serviceFilter);
 
     const filteredByGrade =
       viewMode !== 'appraisals' || gradeFilter === 'all'
@@ -361,6 +386,23 @@ export class EmployeeStoreService {
   setStatusFilter(filter: EmployeeStatusFilter): void {
     this.statusFilterState.set(filter);
     this.currentPageState.set(1);
+  }
+
+  setRetentionFilter(filter: EmployeeRetentionFilter): void {
+    this.retentionFilterState.set(filter);
+    this.currentPageState.set(1);
+  }
+
+  employeeRetentionStatus(jobNumber: string): 'retained' | 'not-retained' | 'unknown' {
+    const matchedJob = this.jobStore
+      .jobs()
+      .find((job) => job.job_number.trim().toLowerCase() === jobNumber.trim().toLowerCase());
+
+    if (!matchedJob) {
+      return 'unknown';
+    }
+
+    return matchedJob.is_retained === 1 ? 'retained' : 'not-retained';
   }
 
   setSortBy(sortBy: EmployeeSortBy): void {

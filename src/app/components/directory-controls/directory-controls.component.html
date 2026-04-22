@@ -39,6 +39,11 @@
       <select (change)="onStatusFilterChange($any($event.target).value)" class="h-11 px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm min-w-[160px]" id="status-filter-main">
         <option *ngFor="let option of statusOptions()" [value]="option.value" [selected]="option.value === statusFilter()">{{ option.label }}</option>
       </select>
+
+      <label class="text-sm font-semibold text-slate-400" for="retention-filter-main">Retention:</label>
+      <select (change)="onRetentionFilterChange($any($event.target).value)" class="h-11 px-6 bg-white border-none rounded-full text-sm font-bold text-blue-900 focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm min-w-[180px]" id="retention-filter-main">
+        <option *ngFor="let option of retentionOptions" [value]="option.value" [selected]="option.value === retentionFilter()">{{ option.label }}</option>
+      </select>
     </div>
 
     <!-- Appraisals filters -->

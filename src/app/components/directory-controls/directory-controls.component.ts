@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import {
   EmployeeLocationFilter,
+  EmployeeRetentionFilter,
   EmployeeSortBy,
   EmployeeStatusFilter,
   EmployeeTeamFilter,
@@ -22,6 +23,7 @@ export class DirectoryControlsComponent {
   readonly teamFilter = this.employeeStore.teamFilter;
   readonly locationFilter = this.employeeStore.locationFilter;
   readonly statusFilter = this.employeeStore.statusFilter;
+  readonly retentionFilter = this.employeeStore.retentionFilter;
   readonly sortBy = this.employeeStore.sortBy;
   readonly pageSize = this.employeeStore.pageSize;
   readonly viewMode = this.employeeStore.viewMode;
@@ -52,6 +54,12 @@ export class DirectoryControlsComponent {
       label: status === 'active' ? 'Active' : 'Pipeline'
     }))
   ]);
+
+  readonly retentionOptions: Array<{ value: EmployeeRetentionFilter; label: string }> = [
+    { value: 'all', label: 'All Employees' },
+    { value: 'retained', label: 'In Retained Jobs' },
+    { value: 'not-retained', label: 'In Not Retained Jobs' }
+  ];
 
   readonly serviceOptions = computed<Array<{ value: string; label: string }>>(() => [
     { value: 'all', label: 'All Services' },
@@ -104,6 +112,10 @@ export class DirectoryControlsComponent {
 
   onStatusFilterChange(value: string): void {
     this.employeeStore.setStatusFilter(value as EmployeeStatusFilter);
+  }
+
+  onRetentionFilterChange(value: string): void {
+    this.employeeStore.setRetentionFilter(value as EmployeeRetentionFilter);
   }
 
   onServiceFilterChange(value: string): void {

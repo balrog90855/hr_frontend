@@ -23,6 +23,8 @@ interface JobEditForm {
   isRetained: number;
 }
 
+type JobRetentionFilter = 'all' | 'retained' | 'not-retained';
+
 @Component({
   selector: 'app-jobs-page',
   standalone: true,
@@ -38,11 +40,13 @@ export class JobsPageComponent {
   private readonly selectedJobNumberState = signal<string | null>(null);
   private readonly jobModalOpenState = signal(false);
   private readonly createModeState = signal(false);
+  private readonly retentionFilterState = signal<JobRetentionFilter>('all');
 
   readonly isAdmin = this.authService.isAdmin;
   readonly jobs = this.jobStore.jobs;
   readonly isJobModalOpen = this.jobModalOpenState.asReadonly();
   readonly isCreateMode = this.createModeState.asReadonly();
+  readonly retentionFilter = this.retentionFilterState.asReadonly();
   readonly isSaving = signal(false);
   readonly isDeleting = signal(false);
   readonly saveErrorMessage = signal<string | null>(null);
@@ -59,12 +63,24 @@ export class JobsPageComponent {
 
   readonly displayedJobs = computed(() => {
     const searchTerm = this.globalSearchService.normalizedSearchTerm();
+    const retentionFilter = this.retentionFilterState();
     const jobs = this.jobs();
+
+    const filteredByRetention =
+      retentionFilter === 'all'
+        ? jobs
+        : jobs.filter((job) => {
+            if (retentionFilter === 'retained') {
+              return job.is_retained === 1;
+            }
+
+            return job.is_retained !== 1;
+          });
 
     const filtered =
       searchTerm.length === 0
-        ? jobs
-        : jobs.filter((job) => {
+        ? filteredByRetention
+        : filteredByRetention.filter((job) => {
             const searchableText = [
               job.job_number,
               job.job_title,
@@ -90,6 +106,10 @@ export class JobsPageComponent {
     if (this.jobStore.jobs().length === 0) {
       this.jobStore.loadJobs();
     }
+  }
+
+  setRetentionFilter(filter: JobRetentionFilter): void {
+    this.retentionFilterState.set(filter);
   }
 
   openJobDetails(jobNumber: string): void {
