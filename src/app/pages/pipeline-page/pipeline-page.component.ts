@@ -138,7 +138,7 @@ export class PipelinePageComponent {
     const assignedJobIds = this.assignedJobIds();
 
     const filteredByMeta = this.jobs()
-      .filter((job) => job.is_vacant === 1)
+      .filter((job) => job.is_vacant === 1 && job.is_retained === 1)
       .filter((job) => !assignedJobIds.has(job.job_number));
 
     const filtered =
